@@ -1,5 +1,7 @@
 package br.com.hst.pdi.libraryapi.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import br.com.hst.pdi.libraryapi.api.model.entity.Book;
@@ -24,4 +26,18 @@ public class BookServiceImpl implements BookService {
         return repository.save(book);
     }
 
+    @Override
+    public Optional<Book> getById(Long id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void delete(Book book) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public Book update(Book book){
+        return null;
+    }
 }

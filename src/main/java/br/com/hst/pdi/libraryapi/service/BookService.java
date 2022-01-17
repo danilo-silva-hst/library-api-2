@@ -8,10 +8,17 @@
 
 package br.com.hst.pdi.libraryapi.service;
 
+import java.util.Optional;
+
 import br.com.hst.pdi.libraryapi.api.model.entity.Book;
 
 public interface BookService {
 
     Book save(Book any);
 
+    Optional<Book> getById(Long id);
+
+    void delete(Book book);
+
+    Book update(Book book);
 }
