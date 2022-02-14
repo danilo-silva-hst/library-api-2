@@ -9,7 +9,6 @@
 package br.com.hst.pdi.libraryapi.api.resource;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -62,7 +61,6 @@ public class BookController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiErrors handleValidationExceptions(MethodArgumentNotValidException ex) {
         var bindingResult = ex.getBindingResult();
-        // List<ObjectError> allErrors = bindingResult.getAllErrors();
         return new ApiErrors(bindingResult);
     }
 
@@ -106,6 +104,6 @@ public class BookController {
         List<BookDTO> list = result.getContent().stream()
             .map( entity -> modelMapper.map(entity, BookDTO.class) )
             .collect(Collectors.toList());
-        return new PageImpl<BookDTO>( list, pageRequest, result.getTotalElements());
+        return new PageImpl<>( list, pageRequest, result.getTotalElements());
     }
 }
