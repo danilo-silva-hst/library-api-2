@@ -257,30 +257,29 @@ public class BookControllerTest {
         public void findBookTest() throws Exception {
                 Long id = 1L;
                 Book book = Book.builder()
-                        .id(id)
-                        .title(createNewBook().getTitle())
-                        .author(createNewBook().getAuthor())
-                        .isbn(createNewBook().getIsbn())
-                        .build();
+                                .id(id)
+                                .title(createNewBook().getTitle())
+                                .author(createNewBook().getAuthor())
+                                .isbn(createNewBook().getIsbn())
+                                .build();
 
                 BDDMockito.given(service.find(Mockito.any(Book.class), Mockito.any(Pageable.class)))
-                        .willReturn(new PageImpl<Book>(Arrays.asList(book), PageRequest.of(0, 100), 1L));
+                                .willReturn(new PageImpl<Book>(Arrays.asList(book), PageRequest.of(0, 100), 1L));
 
                 String queryString = String.format("?title=%s&author=%s&page=0&size=100",
-                        book.getTitle(),
-                        book.getAuthor());
+                                book.getTitle(),
+                                book.getAuthor());
 
                 var request = MockMvcRequestBuilders
-                        .get(BOOK_API.concat(queryString))
-                        .accept(MediaType.APPLICATION_JSON);
-                
+                                .get(BOOK_API.concat(queryString))
+                                .accept(MediaType.APPLICATION_JSON);
+
                 mvc
-                        .perform(request)
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("content", Matchers.hasSize(1)))
-                        .andExpect(jsonPath("totalElements").value(1))
-                        .andExpect(jsonPath("pageable.pageSize").value(100))
-                        .andExpect(jsonPath("pageable.pageNumber").value(0))
-                        ;
+                                .perform(request)
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("content", Matchers.hasSize(1)))
+                                .andExpect(jsonPath("totalElements").value(1))
+                                .andExpect(jsonPath("pageable.pageSize").value(100))
+                                .andExpect(jsonPath("pageable.pageNumber").value(0));
         }
 }
