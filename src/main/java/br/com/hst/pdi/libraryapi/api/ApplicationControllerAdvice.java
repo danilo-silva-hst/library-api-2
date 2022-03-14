@@ -17,26 +17,26 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.hst.pdi.libraryapi.api.exception.ApiErrors;
-import br.com.hst.pdi.libraryapi.exception.BusinessException;
+import br.com.hst.pdi.libraryapi.api.exception.BusinessException;
 
 @RestControllerAdvice
 public class ApplicationControllerAdvice {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleValidationExceptions(MethodArgumentNotValidException ex) {
-        var bindingResult = ex.getBindingResult();
-        return new ApiErrors(bindingResult);
-    }
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ApiErrors handleValidationExceptions(MethodArgumentNotValidException ex) {
+    var bindingResult = ex.getBindingResult();
+    return new ApiErrors(bindingResult);
+  }
 
-    @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleBusinessException(BusinessException ex) {
-        return new ApiErrors(ex);
-    }
+  @ExceptionHandler(BusinessException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ApiErrors handleBusinessException(BusinessException ex) {
+    return new ApiErrors(ex);
+  }
 
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity handleResponseStatusException( ResponseStatusException ex ){
-        return new ResponseEntity(new ApiErrors(ex), ex.getStatus());
-    }
+  @ExceptionHandler(ResponseStatusException.class)
+  public ResponseEntity handleResponseStatusException(ResponseStatusException ex) {
+    return new ResponseEntity(new ApiErrors(ex), ex.getStatus());
+  }
 }

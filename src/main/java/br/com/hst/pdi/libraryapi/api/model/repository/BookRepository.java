@@ -8,8 +8,8 @@ import br.com.hst.pdi.libraryapi.api.model.entity.Book;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    boolean existsByIsbn(String isbn);
+  boolean existsByIsbn(String isbn);
 
-    Optional<Book> findByIsbn(String isbn);
+  Optional<Book> findByIsbn(String isbn);
 
 }

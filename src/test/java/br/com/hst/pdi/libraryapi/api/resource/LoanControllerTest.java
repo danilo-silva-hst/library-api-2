@@ -43,9 +43,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import br.com.hst.pdi.libraryapi.api.dto.LoanDTO;
 import br.com.hst.pdi.libraryapi.api.dto.LoanFilterDTO;
 import br.com.hst.pdi.libraryapi.api.dto.ReturnedLoanDTO;
+import br.com.hst.pdi.libraryapi.api.exception.BusinessException;
 import br.com.hst.pdi.libraryapi.api.model.entity.Book;
 import br.com.hst.pdi.libraryapi.api.model.entity.Loan;
-import br.com.hst.pdi.libraryapi.exception.BusinessException;
 import br.com.hst.pdi.libraryapi.service.BookService;
 import br.com.hst.pdi.libraryapi.service.LoanService;
 import br.com.hst.pdi.libraryapi.service.LoanServiceTest;
@@ -56,155 +56,155 @@ import br.com.hst.pdi.libraryapi.service.LoanServiceTest;
 @WebMvcTest(controllers = LoanController.class)
 public class LoanControllerTest {
 
-        static final String LOAN_API = "/api/loans";
+  static final String LOAN_API = "/api/loans";
 
-        @Autowired
-        MockMvc mvc;
+  @Autowired
+  MockMvc mvc;
 
-        @MockBean
-        private BookService bookService;
+  @MockBean
+  private BookService bookService;
 
-        @MockBean
-        private LoanService loanService;
+  @MockBean
+  private LoanService loanService;
 
-        @Test
-        @DisplayName("Deve realizar um empréstimo")
-        public void createLoanTest() throws Exception {
+  @Test
+  @DisplayName("Deve realizar um empréstimo")
+  public void createLoanTest() throws Exception {
 
-                var dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
-                var json = new ObjectMapper().writeValueAsString(dto);
+    var dto = LoanDTO.builder().isbn("123").email("customer@email.com").customer("Fulano").build();
+    var json = new ObjectMapper().writeValueAsString(dto);
 
-                var book = Book.builder().id(1L).isbn("123").build();
-                BDDMockito.given(bookService.getBookByIsbn("123"))
-                                .willReturn(Optional.of(book));
+    var book = Book.builder().id(1L).isbn("123").build();
+    BDDMockito.given(bookService.getBookByIsbn("123"))
+        .willReturn(Optional.of(book));
 
-                Loan loan = Loan.builder().id(1L).customer("Fulano").book(book).loanDate(LocalDate.now()).build();
-                BDDMockito.given(loanService.save(Mockito.any(Loan.class))).willReturn(loan);
+    Loan loan = Loan.builder().id(1L).customer("Fulano").book(book).loanDate(LocalDate.now()).build();
+    BDDMockito.given(loanService.save(Mockito.any(Loan.class))).willReturn(loan);
 
-                var request = post(LOAN_API)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(json);
+    var request = post(LOAN_API)
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(json);
 
-                mvc.perform(request)
-                                .andExpect(status().isCreated())
-                                // .andExpect(jsonPath("id").value(1L))
-                                .andExpect(content().string("1"));
-        }
+    mvc.perform(request)
+        .andExpect(status().isCreated())
+        // .andExpect(jsonPath("id").value(1L))
+        .andExpect(content().string("1"));
+  }
 
-        @Test
-        @DisplayName("Deve retornar erro ao tentar fazer empréstimo de um livro inexistente")
-        public void invalidIsbnCreateLoanTest() throws Exception {
+  @Test
+  @DisplayName("Deve retornar erro ao tentar fazer empréstimo de um livro inexistente")
+  public void invalidIsbnCreateLoanTest() throws Exception {
 
-                var dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
-                var json = new ObjectMapper().writeValueAsString(dto);
+    var dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
+    var json = new ObjectMapper().writeValueAsString(dto);
 
-                BDDMockito.given(bookService.getBookByIsbn("123"))
-                                .willReturn(Optional.empty());
+    BDDMockito.given(bookService.getBookByIsbn("123"))
+        .willReturn(Optional.empty());
 
-                var request = post(LOAN_API)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(json);
+    var request = post(LOAN_API)
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(json);
 
-                mvc.perform(request)
-                                .andExpect(status().isBadRequest())
-                                .andExpect(jsonPath("errors", Matchers.hasSize(1)))
-                                .andExpect(jsonPath("errors[0]").value("Book not found for passed isbn"));
-        }
+    mvc.perform(request)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("errors", Matchers.hasSize(1)))
+        .andExpect(jsonPath("errors[0]").value("Book not found for passed isbn"));
+  }
 
-        @Test
-        @DisplayName("Deve retornar erro ao tentar fazer empréstimo de um livro emprestado")
-        public void loanedBookErrorTest() throws Exception {
+  @Test
+  @DisplayName("Deve retornar erro ao tentar fazer empréstimo de um livro emprestado")
+  public void loanedBookErrorTest() throws Exception {
 
-                var dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
-                var json = new ObjectMapper().writeValueAsString(dto);
+    var dto = LoanDTO.builder().isbn("123").customer("Fulano").build();
+    var json = new ObjectMapper().writeValueAsString(dto);
 
-                var book = Book.builder().id(1L).isbn("123").build();
-                BDDMockito.given(bookService.getBookByIsbn("123"))
-                                .willReturn(Optional.of(book));
+    var book = Book.builder().id(1L).isbn("123").build();
+    BDDMockito.given(bookService.getBookByIsbn("123"))
+        .willReturn(Optional.of(book));
 
-                BDDMockito.given(loanService.save(Mockito.any(Loan.class)))
-                                .willThrow(new BusinessException("Book already loaned"));
+    BDDMockito.given(loanService.save(Mockito.any(Loan.class)))
+        .willThrow(new BusinessException("Book already loaned"));
 
-                var request = post(LOAN_API)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(json);
+    var request = post(LOAN_API)
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(json);
 
-                mvc.perform(request)
-                                .andExpect(status().isBadRequest())
-                                .andExpect(jsonPath("errors", Matchers.hasSize(1)))
-                                .andExpect(jsonPath("errors[0]").value("Book already loaned"));
-        }
+    mvc.perform(request)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("errors", Matchers.hasSize(1)))
+        .andExpect(jsonPath("errors[0]").value("Book already loaned"));
+  }
 
-        @Test
-        @DisplayName("Deve retornar um livro")
-        public void returnBookTest() throws Exception {
-                // cenário { returned: true }
-                var dto = ReturnedLoanDTO.builder().returned(true).build();
-                var json = new ObjectMapper().writeValueAsString(dto);
+  @Test
+  @DisplayName("Deve retornar um livro")
+  public void returnBookTest() throws Exception {
+    // cenário { returned: true }
+    var dto = ReturnedLoanDTO.builder().returned(true).build();
+    var json = new ObjectMapper().writeValueAsString(dto);
 
-                Loan loan = Loan.builder().id(1L).build();
+    Loan loan = Loan.builder().id(1L).build();
 
-                BDDMockito.given(loanService.getById(Mockito.anyLong()))
-                                .willReturn(Optional.of(loan));
+    BDDMockito.given(loanService.getById(Mockito.anyLong()))
+        .willReturn(Optional.of(loan));
 
-                mvc.perform(
-                                MockMvcRequestBuilders.patch(LOAN_API.concat("/1"))
-                                                .accept(MediaType.APPLICATION_JSON)
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(json))
-                                .andExpect(status().isOk());
+    mvc.perform(
+        MockMvcRequestBuilders.patch(LOAN_API.concat("/1"))
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isOk());
 
-                verify(loanService, times(1)).update(loan);
+    verify(loanService, times(1)).update(loan);
 
-        }
+  }
 
-        @Test
-        @DisplayName("Deve retornar 404 quando tentar devolver um livro inexistente")
-        public void returnInexistentBookTest() throws Exception {
-                var dto = ReturnedLoanDTO.builder().returned(true).build();
-                var json = new ObjectMapper().writeValueAsString(dto);
+  @Test
+  @DisplayName("Deve retornar 404 quando tentar devolver um livro inexistente")
+  public void returnInexistentBookTest() throws Exception {
+    var dto = ReturnedLoanDTO.builder().returned(true).build();
+    var json = new ObjectMapper().writeValueAsString(dto);
 
-                BDDMockito.given(loanService.getById(Mockito.anyLong()))
-                                .willReturn(Optional.empty());
+    BDDMockito.given(loanService.getById(Mockito.anyLong()))
+        .willReturn(Optional.empty());
 
-                mvc.perform(
-                                MockMvcRequestBuilders.patch(LOAN_API.concat("/1"))
-                                                .accept(MediaType.APPLICATION_JSON)
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(json))
-                                .andExpect(status().isNotFound());
-        }
+    mvc.perform(
+        MockMvcRequestBuilders.patch(LOAN_API.concat("/1"))
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isNotFound());
+  }
 
-        @Test
-        @DisplayName("Deve filtrar empréstimos")
-        public void findLoansTest() throws Exception {
-                // cenário
-                var id = 1L;
+  @Test
+  @DisplayName("Deve filtrar empréstimos")
+  public void findLoansTest() throws Exception {
+    // cenário
+    var id = 1L;
 
-                var loan = LoanServiceTest.createLoan();
-                loan.setId(id);
-                var book = Book.builder().id(1L).isbn("321").build();
-                loan.setBook(book);
+    var loan = LoanServiceTest.createLoan();
+    loan.setId(id);
+    var book = Book.builder().id(1L).isbn("321").build();
+    loan.setBook(book);
 
-                BDDMockito.given(loanService.find(Mockito.any(LoanFilterDTO.class), Mockito.any(Pageable.class)))
-                                .willReturn(new PageImpl<Loan>(Arrays.asList(loan), PageRequest.of(0, 10), 1L));
+    BDDMockito.given(loanService.find(Mockito.any(LoanFilterDTO.class), Mockito.any(Pageable.class)))
+        .willReturn(new PageImpl<Loan>(Arrays.asList(loan), PageRequest.of(0, 10), 1L));
 
-                var queryString = String.format("?isbn=%s&customer=%s&page=0&size=10",
-                                book.getIsbn(),
-                                loan.getCustomer());
-                var request = MockMvcRequestBuilders
-                                .get(LOAN_API.concat(queryString))
-                                .accept(MediaType.APPLICATION_JSON);
-                mvc
-                                .perform(request)
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("content", Matchers.hasSize(1)))
-                                .andExpect(jsonPath("totalElements").value(1))
-                                .andExpect(jsonPath("pageable.pageSize").value(10))
-                                .andExpect(jsonPath("pageable.pageNumber").value(0));
+    var queryString = String.format("?isbn=%s&customer=%s&page=0&size=10",
+        book.getIsbn(),
+        loan.getCustomer());
+    var request = MockMvcRequestBuilders
+        .get(LOAN_API.concat(queryString))
+        .accept(MediaType.APPLICATION_JSON);
+    mvc
+        .perform(request)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("content", Matchers.hasSize(1)))
+        .andExpect(jsonPath("totalElements").value(1))
+        .andExpect(jsonPath("pageable.pageSize").value(10))
+        .andExpect(jsonPath("pageable.pageNumber").value(0));
 
-        }
+  }
 }

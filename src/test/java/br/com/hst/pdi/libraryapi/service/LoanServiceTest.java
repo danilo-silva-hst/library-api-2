@@ -32,10 +32,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.hst.pdi.libraryapi.api.dto.LoanFilterDTO;
+import br.com.hst.pdi.libraryapi.api.exception.BusinessException;
 import br.com.hst.pdi.libraryapi.api.model.entity.Book;
 import br.com.hst.pdi.libraryapi.api.model.entity.Loan;
 import br.com.hst.pdi.libraryapi.api.model.repository.LoanRepository;
-import br.com.hst.pdi.libraryapi.exception.BusinessException;
 import br.com.hst.pdi.libraryapi.service.impl.LoanServiceImpl;
 
 @ExtendWith(SpringExtension.class)
@@ -176,7 +176,7 @@ public class LoanServiceTest {
         .thenReturn(page);
 
     // Execução
-    Page<Loan> result = service.find( loanFilterDTO, pageRequest);
+    Page<Loan> result = service.find(loanFilterDTO, pageRequest);
 
     // Verificação
     assertThat(result.getTotalElements()).isEqualTo(1);
